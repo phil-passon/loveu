@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Für Dich</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --wine: #6d1b2b;
+            --wine-deep: #4a1220;
+            --blush: #f3dede;
+            --gold: #c9a15a;
+            --cream: #fff8f2;
+            --ink: #2c1013;
+        }
+
+        *{ box-sizing: border-box; }
+
+        html, body{
+            margin:0;
+            padding:0;
+            min-height:100%;
+            background: linear-gradient(180deg, var(--wine-deep), var(--wine) 55%, #7d2436);
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--cream);
+            overflow-x: hidden;
+        }
+
+        h1, h2, .display{
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* ---------- HEARTS BACKGROUND ---------- */
+        #heartsCanvas{
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            display: none;
+        }
+
+        /* ---------- GATE (ENVELOPE) ---------- */
+        #gate{
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
+            text-align: center;
+        }
+
+        .gate-title{
+            font-size: clamp(1.4rem, 5vw, 2rem);
+            letter-spacing: 0.04em;
+            margin: 0 0 28px;
+            color: var(--blush);
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        /* envelope */
+        .envelope-wrap{
+            width: min(320px, 80vw);
+            aspect-ratio: 3 / 2;
+            position: relative;
+            margin-bottom: 34px;
+            filter: drop-shadow(0 18px 30px rgba(0,0,0,0.35));
+        }
+
+        .envelope{
+            position: absolute;
+            inset: 0;
+            background: #f6e9e2;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .envelope::before, .envelope::after{
+            content:"";
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: #ecd7cd;
+        }
+        .envelope::before{ left:0; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+        .envelope::after{ right:0; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+
+        .flap{
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 62%;
+            background: var(--wine);
+            clip-path: polygon(0 0, 100% 0, 50% 68%);
+            transform-origin: top center;
+            transition: transform 1s cubic-bezier(.6,-0.2,.3,1.3);
+            z-index: 3;
+        }
+
+        .seal{
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 56px;
+            height: 56px;
+            background: radial-gradient(circle at 35% 30%, #d98a8a, var(--gold) 70%);
+            border-radius: 50%;
+            transform: translate(-50%,-50%);
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            transition: opacity .4s ease, transform .4s ease;
+        }
+        .seal svg{ width: 26px; height: 26px; fill: #4a1220; }
+
+        #gate.open .flap{ transform: rotateX(180deg); }
+        #gate.open .seal{ opacity: 0; transform: translate(-50%,-50%) scale(0.4); }
+
+        form#dateForm{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            width: min(320px, 85vw);
+        }
+
+        label{
+            font-size: 1.05rem;
+            color: var(--blush);
+        }
+
+        input#dateInput{
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--gold);
+            background: rgba(255,255,255,0.08);
+            color: var(--cream);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+            outline: none;
+        }
+        input#dateInput::placeholder{ color: rgba(255,248,242,0.5); }
+        input#dateInput:focus{ box-shadow: 0 0 0 3px rgba(201,161,90,0.4); }
+
+        button{
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+        }
+
+        #openBtn{
+            padding: 11px 30px;
+            border-radius: 30px;
+            border: none;
+            background: var(--gold);
+            color: var(--wine-deep);
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.03em;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        #openBtn:hover{ transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
+        #openBtn:active{ transform: translateY(0); }
+
+        .hint{
+            font-size: 0.9rem;
+            color: rgba(255,248,242,0.6);
+            min-height: 1.2em;
+        }
+        .hint.error{ color: #ffb3b3; }
+
+        .shake{ animation: shake 0.45s; }
+        @keyframes shake{
+            10%,90%{ transform: translateX(-4px); }
+            20%,80%{ transform: translateX(6px); }
+            30%,50%,70%{ transform: translateX(-9px); }
+            40%,60%{ transform: translateX(9px); }
+        }
+
+        /* ---------- MAIN CONTENT ---------- */
+        #main{
+            position: relative;
+            z-index: 2;
+            display: none;
+            min-height: 100vh;
+            padding: 48px 20px 70px;
+            max-width: 640px;
+            margin: 0 auto;
+            text-align: center;
+            animation: fadeUp 1s ease both;
+        }
+        @keyframes fadeUp{
+            from{ opacity:0; transform: translateY(18px); }
+            to{ opacity:1; transform: translateY(0); }
+        }
+
+        #main h1{
+            font-size: clamp(1.8rem, 6vw, 2.6rem);
+            font-style: italic;
+            color: var(--blush);
+            margin-bottom: 6px;
+        }
+        #main .sub{
+            color: rgba(255,248,242,0.75);
+            margin-bottom: 36px;
+            font-size: 1.1rem;
+        }
+
+        /* days-together counter */
+        .counter-box{
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(201,161,90,0.35);
+            border-radius: 18px;
+            padding: 18px 30px 20px;
+            margin: 0 auto 40px;
+        }
+        .counter-number{
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.2rem, 8vw, 3rem);
+            color: var(--gold);
+            line-height: 1;
+            font-weight: 700;
+        }
+        .counter-label{
+            font-size: 0.95rem;
+            color: rgba(255,248,242,0.75);
+            letter-spacing: 0.03em;
+        }
+        .counter-live{
+            font-size: 0.85rem;
+            color: rgba(255,248,242,0.5);
+            letter-spacing: 0.02em;
+            margin-top: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* picture placeholder */
+        .polaroid{
+            width: min(280px, 78vw);
+            background: var(--cream);
+            padding: 14px 14px 40px;
+            margin: 0 auto 46px;
+            border-radius: 4px;
+            box-shadow: 0 16px 30px rgba(0,0,0,0.35);
+            transform: rotate(-3deg);
+        }
+        .polaroid img.our-photo{
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(135deg, var(--blush), #e8bcbc);
+        }
+        .polaroid-caption{
+            color: var(--wine-deep);
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* reasons section */
+        .reasons-box{
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(201,161,90,0.35);
+            border-radius: 18px;
+            padding: 36px 26px 40px;
+            margin-bottom: 40px;
+        }
+
+        .reasons-lead{
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--blush);
+            margin: 0 0 22px;
+        }
+
+        #reasonDisplay{
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.1rem, 4vw, 1.4rem);
+            line-height: 1.5;
+            color: var(--cream);
+            padding: 10px 6px;
+            transition: opacity .35s ease, transform .35s ease;
+        }
+        #reasonDisplay.swap{ opacity: 0; transform: translateY(6px); }
+
+        #reasonBtn{
+            margin-top: 18px;
+            padding: 13px 32px;
+            border-radius: 30px;
+            border: none;
+            background: var(--gold);
+            color: var(--wine-deep);
+            font-weight: 700;
+            font-size: 1.02rem;
+            letter-spacing: 0.02em;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        #reasonBtn:hover{ transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
+
+        #reasonCounter{
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: rgba(255,248,242,0.55);
+        }
+
+        /* spotify section */
+        .music-box{
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(201,161,90,0.35);
+            border-radius: 18px;
+            padding: 28px 22px 30px;
+        }
+        .music-lead{
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--blush);
+            margin: 0 0 18px;
+        }
+        .music-box iframe{
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        footer.made{
+            margin-top: 50px;
+            font-size: 0.85rem;
+            color: rgba(255,248,242,0.45);
+            font-style: italic;
+        }
+
+        @media (max-width: 380px){
+            .reasons-box, .music-box{ padding: 28px 18px 32px; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="heartsCanvas"></canvas>
+
+<section id="gate">
+    <p class="gate-title display">Für Dich</p>
+
+    <div class="envelope-wrap">
+        <div class="envelope"></div>
+        <div class="flap"></div>
+
+    </div>
+
+    <form id="dateForm" autocomplete="off">
+        <label for="dateInput">Gib unser Datum ein (TT/MM/JJJJ)</label>
+        <input type="text" id="dateInput" placeholder="TT.MM.JJJJ" inputmode="numeric" maxlength="10">
+        <button type="submit" id="openBtn">Öffnen</button>
+        <p class="hint" id="hint">&nbsp;</p>
+    </form>
+</section>
+
+
+<main id="main">
+
+    <div class="counter-box">
+        <div class="counter-number" id="daysNumber">0</div>
+        <div class="counter-label" id="daysLabel">Tage zusammen ♡</div>
+        <div class="counter-live" id="liveTicker">0 Std 0 Min 0 Sek</div>
+    </div>
+
+    <div class="polaroid">
+        <img class="our-photo" id="ourPhoto" src="pic.jpeg" alt="Wir beide"
+             onerror="this.style.display='none'; document.getElementById('photoFallback').style.display='flex';">
+        <div id="photoFallback" style="display:none; width:100%; aspect-ratio:1/1; align-items:center; justify-content:center; color:#a3767a; font-family:'Cormorant Garamond',serif; font-size:0.95rem; background:linear-gradient(135deg,#f3dede,#e8bcbc);">
+            Hier kommt unser Bild hin
+        </div>
+        <p class="polaroid-caption">love u</p>
+    </div>
+
+    <div class="reasons-box">
+        <p class="reasons-lead">Ich liebe dich weil...</p>
+        <div id="reasonDisplay">Klick auf den Knopf und finde es heraus.</div>
+        <button id="reasonBtn">Klick mich für einen Grund</button>
+    </div>
+
+    <div class="music-box">
+        <p class="music-lead">Unser Lied</p>
+        <iframe id="spotifyEmbed"
+                style="border-radius:12px"
+                src="https://open.spotify.com/embed/track/3w3y8KPTfNeOKPiqUTakBh?utm_source=generator&theme=0"
+                width="100%" height="152" frameBorder="0" allowfullscreen=""
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"></iframe>
+    </div>
+
+</main>
+
+<script>
+    const ANNIVERSARY_DATE = "18/02/2024";
+
+    const reasons = [
+        "Weil dein Lachen mein Lieblingsgeräusch auf der ganzen Welt ist.",
+        "Weil du mir zuhörst, auch wenn ich zu viel rede.",
+        "Weil deine Umarmungen sich wie Zuhause anfühlen.",
+        "Weil du morgens die schönste Person bist, die ich sehe.",
+        "Weil du mich zum besseren Menschen machst.",
+        "Weil du für mich da bist, ohne zu zögern.",
+        "Weil du so herzlich mit anderen Menschen umgehst.",
+        "Weil du meine Fehler siehst und mich trotzdem liebst.",
+        "Weil du mich mit kleinen Sachen glücklich machst.",
+        "Weil deine Stimme mich beruhigt, egal wie stressig der Tag war.",
+        "Weil du mich immer wieder zum Lachen bringst.",
+        "Weil du geduldig mit mir bist.",
+        "Weil du meine Träume genauso ernst nimmst wie deine eigenen.",
+        "Weil du mir Mut machst, Neues zu wagen.",
+        "Weil du so schlau bist.",
+        "Weil du dich um die Menschen kümmerst, die dir wichtig sind.",
+        "Weil du mich akzeptierst, genau so wie ich bin.",
+        "Weil du kleine Momente zu besonderen machst.",
+        "Weil du mich niemals im Stich lässt.",
+        "Weil du so gut zuhören kannst.",
+        "Weil du meine beste Freundin bist.",
+        "Weil du so liebevoll mit Tieren umgehst.",
+        "Weil du weißt, wie man mich aufmuntert.",
+        "Weil du so ehrgeizig bist und trotzdem bescheiden bleibst.",
+        "Weil du meinen schlechten Humor erträgst.",
+        "Weil du mich stolz machst.",
+        "Weil du so schön bist, wenn du konzentriert arbeitest.",
+        "Weil du mich mit deiner Neugier ansteckst.",
+        "Weil du so kreativ bist.",
+        "Weil du meine Familie in dein Herz geschlossen hast.",
+        "Weil du dich immer wieder entschuldigst, wenn du im Unrecht bist.",
+        "Weil du meine Erfolge feierst, als wären es deine eigenen.",
+        "Weil du mich mit deiner Fürsorge überwältigst.",
+        "Weil dein Herz so groß ist.",
+        "Weil du dich nicht verstellst.",
+        "Weil du für uns kämpfst, wenn es schwierig wird.",
+        "Weil du meine schlechten Tage besser machst.",
+        "Weil du so toll tanzt.",
+        "Weil du meine Lieblingsperson bist.",
+        "Weil du so großzügig bist.",
+        "Weil du mir Sicherheit gibst.",
+        "Weil du mich mit deinem Vertrauen beschenkst.",
+        "Weil du meine Gedanken manchmal besser kennst als ich selbst.",
+        "Weil du mich nie kleinmachst.",
+        "Weil du mich mit deiner Willenskraft inspirierst.",
+        "Weil du mich immer verteidigst.",
+        "Weil du mir zeigst, was bedingungslose Liebe bedeutet.",
+        "Weil du mich mit deiner Ausdauer beeindruckst.",
+        "Weil du meine Meinung wirklich hören willst.",
+        "Weil du mich mit einem Blick verstehst.",
+        "Weil du so treu bist.",
+        "Weil du meine Zukunft heller machst.",
+        "Weil du mich anspornst, mein Bestes zu geben.",
+        "Weil du mich niemals langweilst.",
+        "Weil du mir beibringst, im Moment zu leben.",
+        "Weil du mich mit deiner Stärke trägst, wenn ich schwach bin.",
+        "Weil du meine Zweifel mit Geduld beantwortest.",
+        "Weil du mich jeden Tag aufs Neue wählst.",
+        "Weil unsere Zukunft mit dir das ist, worauf ich mich am meisten freue.",
+    ];
+
+    let remaining = [...reasons];
+
+    const form = document.getElementById('dateForm');
+    const input = document.getElementById('dateInput');
+    const hint = document.getElementById('hint');
+    const gate = document.getElementById('gate');
+    const main = document.getElementById('main');
+    const canvas = document.getElementById('heartsCanvas');
+
+    function normalize(str){
+        return str.replace(/\D/g, '');
+    }
+
+    function updateDaysCounter(){
+        // ANNIVERSARY_DATE is DD/MM/YYYY
+        const [day, month, year] = ANNIVERSARY_DATE.split('/').map(Number);
+        const start = new Date(year, month - 1, day);
+        const now = new Date();
+
+        // whole days, ticking over at local midnight
+        const startMid = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+        const nowMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const diffDays = Math.floor((nowMid - startMid) / 86400000);
+        const daysEl = document.getElementById('daysNumber');
+        if(daysEl) daysEl.textContent = diffDays.toLocaleString('de-DE');
+
+        // live hours/minutes/seconds since the exact anniversary moment (00:00 on that day)
+        const totalMs = now - start;
+        const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const liveEl = document.getElementById('liveTicker');
+        if(liveEl){
+            liveEl.textContent = `${hours} Std ${minutes} Min ${seconds} Sek`;
+        }
+    }
+
+    form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const val = normalize(input.value);
+        const target = normalize(ANNIVERSARY_DATE);
+
+        if(val === target){
+            gate.classList.add('open');
+            hint.textContent = '';
+            setTimeout(() => {
+                gate.style.display = 'none';
+                main.style.display = 'block';
+                canvas.style.display = 'block';
+                updateDaysCounter();
+                setInterval(updateDaysCounter, 1000);
+                startHearts();
+            }, 900);
+        } else {
+            hint.textContent = 'Das ist nicht ganz richtig... versuch es nochmal.';
+            hint.classList.add('error');
+            form.classList.add('shake');
+            setTimeout(() => form.classList.remove('shake'), 450);
+        }
+    });
+
+    /* ---------- reason button ---------- */
+    const reasonBtn = document.getElementById('reasonBtn');
+    const reasonDisplay = document.getElementById('reasonDisplay');
+
+    reasonBtn.addEventListener('click', () => {
+        if(remaining.length === 0){
+            remaining = [...reasons];
+        }
+        const idx = Math.floor(Math.random() * remaining.length);
+        const chosen = remaining.splice(idx, 1)[0];
+
+        reasonDisplay.classList.add('swap');
+        setTimeout(() => {
+            reasonDisplay.textContent = chosen;
+            reasonDisplay.classList.remove('swap');
+        }, 200);
+    });
+
+    /* ---------- raining hearts background ---------- */
+    function startHearts(){
+        const ctx = canvas.getContext('2d');
+        function resize(){
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const hearts = [];
+        const HEART_COUNT = window.innerWidth < 500 ? 22 : 40;
+
+        function makeHeart(){
+            return {
+                x: Math.random() * canvas.width,
+                y: Math.random() * -canvas.height,
+                size: 8 + Math.random() * 16,
+                speed: 0.6 + Math.random() * 1.6,
+                drift: (Math.random() - 0.5) * 0.6,
+                opacity: 0.35 + Math.random() * 0.5,
+                hue: Math.random() > 0.5 ? '#c9556b' : '#e8a3a3'
+            };
+        }
+
+        for(let i=0;i<HEART_COUNT;i++) hearts.push(makeHeart());
+
+        function drawHeart(h){
+            ctx.save();
+            ctx.globalAlpha = h.opacity;
+            ctx.translate(h.x, h.y);
+            ctx.scale(h.size/16, h.size/16);
+            ctx.fillStyle = h.hue;
+            ctx.beginPath();
+            ctx.moveTo(0, 4);
+            ctx.bezierCurveTo(0, 0, -8, 0, -8, -5);
+            ctx.bezierCurveTo(-8, -10, 0, -10, 0, -4);
+            ctx.bezierCurveTo(0, -10, 8, -10, 8, -5);
+            ctx.bezierCurveTo(8, 0, 0, 0, 0, 4);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function animate(){
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            hearts.forEach(h => {
+                h.y += h.speed;
+                h.x += h.drift;
+                if(h.y > canvas.height + 20){
+                    Object.assign(h, makeHeart(), {y: -20});
+                }
+                drawHeart(h);
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+</script>
+</body>
+</html>
