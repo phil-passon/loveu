@@ -1,0 +1,488 @@
+:root{
+    --wine: #D4C4B0;
+    --wine-deep: #2A1F18;
+    --blush: #5C4033;
+    --gold: #9A7B5A;
+    --cream: #FDFAF6;
+    --ink: #2A1F18;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+    margin:0;
+    padding:0;
+    min-height:100%;
+    background: linear-gradient(180deg, #F5EFE6, #EDE4D8 55%, #E8DDD0);
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--ink);
+    overflow-x: hidden;
+}
+
+h1, h2, .display{
+    font-family: 'Playfair Display', serif;
+}
+
+#heartsCanvas{
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    display: none;
+}
+
+/* ---------- GATE ---------- */
+#gate{
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.gate-title{
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    letter-spacing: 0.04em;
+    margin: 0 0 28px;
+    color: var(--blush);
+}
+
+.envelope-wrap{
+    width: min(320px, 80vw);
+    aspect-ratio: 3 / 2;
+    position: relative;
+    margin-bottom: 34px;
+    filter: drop-shadow(0 18px 30px rgba(0,0,0,0.35));
+}
+
+.envelope{
+    position: absolute;
+    inset: 0;
+    background: #EDE0D0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.envelope::before, .envelope::after{
+    content:"";
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: #E3D3C0;
+}
+.envelope::before{ left:0; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.envelope::after{ right:0; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+
+.flap{
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 62%;
+    background: var(--wine);
+    clip-path: polygon(0 0, 100% 0, 50% 68%);
+    transform-origin: top center;
+    transition: transform 1s cubic-bezier(.6,-0.2,.3,1.3);
+    z-index: 3;
+}
+
+.seal{
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle at 35% 30%, #C4A882, #8B6B47 70%);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    transition: opacity .4s ease, transform .4s ease;
+}
+.seal svg{ width: 26px; height: 26px; fill: #2A1F18; }
+
+#gate.open .flap{ transform: rotateX(180deg); }
+#gate.open .seal{ opacity: 0; transform: translate(-50%,-50%) scale(0.4); }
+
+form#dateForm{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    width: min(320px, 85vw);
+}
+
+label{
+    font-size: 1.05rem;
+    color: var(--blush);
+}
+
+input#dateInput{
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 30px;
+    border: 1px solid var(--gold);
+    background: rgba(255,255,255,0.4);
+    color: var(--ink);
+    text-align: center;
+    letter-spacing: 0.05em;
+    outline: none;
+}
+input#dateInput::placeholder{ color: rgba(92,64,51,0.5); }
+input#dateInput:focus{ box-shadow: 0 0 0 3px rgba(154,123,90,0.4); }
+
+button{ font-family: 'Playfair Display', serif; cursor: pointer; }
+
+#openBtn{
+    padding: 11px 30px;
+    border-radius: 30px;
+    border: none;
+    background: var(--gold);
+    color: var(--wine-deep);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+#openBtn:hover{ transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
+#openBtn:active{ transform: translateY(0); }
+
+.hint{ font-size: 0.9rem; color: rgba(92,64,51,0.6); min-height: 1.2em; }
+.hint.error{ color: #c0392b; }
+
+.shake{ animation: shake 0.45s; }
+@keyframes shake{
+    10%,90%{ transform: translateX(-4px); }
+    20%,80%{ transform: translateX(6px); }
+    30%,50%,70%{ transform: translateX(-9px); }
+    40%,60%{ transform: translateX(9px); }
+}
+
+/* ---------- MAIN ---------- */
+#main{
+    position: relative;
+    z-index: 2;
+    display: none;
+    min-height: 100vh;
+    padding: 48px 20px 70px;
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+    animation: fadeUp 1s ease both;
+}
+@keyframes fadeUp{
+    from{ opacity:0; transform: translateY(18px); }
+    to{ opacity:1; transform: translateY(0); }
+}
+
+#main h1{
+    font-size: clamp(1.8rem, 6vw, 2.6rem);
+    font-style: italic;
+    color: var(--blush);
+    margin-bottom: 6px;
+}
+#main .sub{
+    color: rgba(92,64,51,0.75);
+    margin-bottom: 36px;
+    font-size: 1.1rem;
+}
+
+.counter-box{
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(154,123,90,0.4);
+    border-radius: 18px;
+    padding: 18px 30px 20px;
+    margin: 0 auto 40px;
+}
+.counter-number{
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 8vw, 3rem);
+    color: var(--gold);
+    line-height: 1;
+    font-weight: 700;
+}
+.counter-label{ font-size: 0.95rem; color: rgba(92,64,51,0.75); letter-spacing: 0.03em; }
+.counter-live{
+    font-size: 0.85rem;
+    color: rgba(92,64,51,0.5);
+    letter-spacing: 0.02em;
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+}
+
+.polaroid{
+    width: min(280px, 78vw);
+    background: #FFFFFF;
+    padding: 14px 14px 40px;
+    margin: 0 auto 46px;
+    border-radius: 4px;
+    box-shadow: 0 16px 30px rgba(0,0,0,0.35);
+    transform: rotate(-3deg);
+}
+.polaroid img.our-photo{
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    display: block;
+    background: linear-gradient(135deg, var(--blush), #e8bcbc);
+}
+.polaroid-caption{
+    color: var(--wine-deep);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
+
+.reasons-box{
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(154,123,90,0.4);
+    border-radius: 18px;
+    padding: 36px 26px 40px;
+    margin-bottom: 40px;
+}
+.reasons-lead{ font-size: 1.3rem; font-style: italic; color: var(--blush); margin: 0 0 22px; }
+
+#reasonDisplay{
+    min-height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    line-height: 1.5;
+    color: var(--ink);
+    padding: 10px 6px;
+    transition: opacity .35s ease, transform .35s ease;
+}
+#reasonDisplay.swap{ opacity: 0; transform: translateY(6px); }
+
+#reasonBtn{
+    margin-top: 18px;
+    padding: 13px 32px;
+    border-radius: 30px;
+    border: none;
+    background: var(--gold);
+    color: var(--wine-deep);
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.02em;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+#reasonBtn:hover{ transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.35); }
+
+.music-box{
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(154,123,90,0.4);
+    border-radius: 18px;
+    padding: 28px 22px 30px;
+    margin-bottom: 40px;
+}
+.music-lead{ font-size: 1.3rem; font-style: italic; color: var(--blush); margin: 0 0 18px; }
+.music-box iframe{ width: 100%; border-radius: 12px; }
+
+/* ========== FLOWER GARDEN ========== */
+.garden-box{
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(154,123,90,0.4);
+    border-radius: 18px;
+    padding: 32px 22px 36px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: visible;
+}
+.garden-lead{
+    font-size: 1.3rem;
+    font-style: italic;
+    color: var(--blush);
+    margin: 0 0 6px;
+}
+.garden-sub{
+    font-size: 0.9rem;
+    color: rgba(92,64,51,0.5);
+    margin: 0 0 24px;
+}
+
+/* Today's flower area */
+.today-flower-area{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+    min-height: 160px;
+    position: relative;
+}
+
+.flower-label{
+    font-size: 0.85rem;
+    color: rgba(92,64,51,0.5);
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+/* The draggable flower svg wrapper */
+.flower-drag{
+    width: 90px;
+    height: 140px;
+    cursor: grab;
+    position: relative;
+    user-select: none;
+    touch-action: none;
+    transition: filter 0.2s;
+    flex-shrink: 0;
+}
+.flower-drag:active{ cursor: grabbing; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.4)); }
+.flower-drag.dragging{ position: fixed; z-index: 9999; pointer-events: none; }
+.flower-drag.in-vase{
+    cursor: grab;
+}
+.flower-name{
+    font-size: 0.9rem;
+    color: var(--gold);
+    margin-top: 8px;
+    font-style: italic;
+}
+
+/* Vase section */
+.vase-section{
+    margin-top: 10px;
+}
+.vase-label{
+    font-size: 1rem;
+    color: var(--blush);
+    font-style: italic;
+    margin-bottom: 12px;
+}
+
+.vase-area{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* fixed-size stage that holds both the vase drawing and the flowers, so they can overlap.
+   Taller than the vase art itself so the blooms have headroom above the rim and don't
+   collide with the label/text sitting above the garden box. */
+.vase-visual{
+    position: relative;
+    width: 160px;
+    height: 190px;
+    margin: 0 auto;
+}
+
+/* Anchor point for the bouquet — sits low inside the vase neck so the drawn
+   stems visually disappear behind/into the vase outline, with only the
+   blooms rising above the rim. Flowers are positioned absolutely from this
+   single point, so their bases converge like a real hand-tied bouquet. */
+.vase-flowers{
+    position: absolute;
+    bottom: 95px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    z-index: 2;
+}
+
+.vase-flower{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    margin-left: -30px; /* centers the 60px-wide flower on the anchor point */
+    width: 60px;
+    height: 100px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    transform-origin: bottom center;
+    transform: translateX(var(--basex, 0px)) rotate(var(--rot, 0deg)) translateY(var(--lift, 0px));
+    transition: transform 0.2s;
+}
+.vase-flower:active{ cursor: grabbing; }
+.vase-flower:hover{
+    transform: translateX(var(--basex, 0px)) rotate(var(--rot, 0deg)) translateY(calc(var(--lift, 0px) - 6px));
+}
+
+/* Vase SVG */
+.vase-svg-wrap{
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+/* A second, front-facing copy of just the vase BODY (no neck), layered above the
+   flower stems. Its translucent fill acts like real glass — anything below the rim
+   (the lower stems) reads as sitting behind/inside the glass, while the blooms and
+   upper stems stay above the rim, fully visible and unveiled. */
+.vase-glass-front{
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* Drop zone highlight, matched to the vase-visual stage */
+.vase-drop-zone{
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    height: 190px;
+    border-radius: 50% 50% 30% 30%;
+    border: 2px dashed rgba(201,161,90,0);
+    transition: border-color 0.3s, background 0.3s;
+    pointer-events: none;
+    z-index: 0;
+}
+.vase-drop-zone.active{
+    border-color: rgba(201,161,90,0.6);
+    background: rgba(201,161,90,0.08);
+}
+
+.vase-hint{
+    font-size: 0.8rem;
+    color: rgba(92,64,51,0.4);
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Streak badge */
+.streak-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(154,123,90,0.15);
+    border: 1px solid rgba(154,123,90,0.35);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.85rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+}
+
+footer.made{
+    margin-top: 50px;
+    font-size: 0.85rem;
+    color: rgba(92,64,51,0.45);
+    font-style: italic;
+}
+
+@media (max-width: 380px){
+    .reasons-box, .music-box, .garden-box{ padding: 28px 18px 32px; }
+}
