@@ -388,7 +388,7 @@ button{ font-family: 'Playfair Display', serif; cursor: pointer; }
    single point, so their bases converge like a real hand-tied bouquet. */
 .vase-flowers{
     position: absolute;
-    bottom: 95px;
+    bottom: 12px; /* Setzt den Ursprungspunkt exakt auf den Vasenboden */
     left: 50%;
     width: 0;
     height: 0;
@@ -399,19 +399,19 @@ button{ font-family: 'Playfair Display', serif; cursor: pointer; }
     position: absolute;
     left: 0;
     bottom: 0;
-    margin-left: -30px; /* centers the 60px-wide flower on the anchor point */
-    width: 60px;
-    height: 100px;
+    margin-left: -45px; /* Zentriert die nun 90px breite Blume */
+    width: 90px;        /* Vergrößert, damit die Stängel den Boden erreichen */
+    height: 140px;      /* Vergrößert, damit die Stängel den Boden erreichen */
     cursor: grab;
     user-select: none;
     touch-action: none;
-    transform-origin: bottom center;
-    transform: translateX(var(--basex, 0px)) rotate(var(--rot, 0deg)) translateY(var(--lift, 0px));
+    transform-origin: bottom center; /* Rotiert fix vom Vasenboden aus */
+    transform: translateX(var(--basex, 0px)) rotate(var(--rot, 0deg)) translateY(var(--lift, 0px)) scale(var(--scale, 1));
     transition: transform 0.2s;
 }
 .vase-flower:active{ cursor: grabbing; }
 .vase-flower:hover{
-    transform: translateX(var(--basex, 0px)) rotate(var(--rot, 0deg)) translateY(calc(var(--lift, 0px) - 6px));
+    transform: translateX(var(--basex, 0px)) rotate(var(--rot, 0deg)) translateY(calc(var(--lift, 0px) - 6px)) scale(var(--scale, 1));
 }
 
 /* Vase SVG */

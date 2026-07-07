@@ -47,58 +47,57 @@
         </div>
         <p class="polaroid-caption">love u</p>
     </div>
+    <!-- FLOWER GARDEN -->
+    <div class="garden-box">
+        <p class="garden-lead">Dein Blumengarten</p>
+        <p class="garden-sub">Jeden Tag wächst eine neue Blume für dich 🌸</p>
 
-<!--    &lt;!&ndash; FLOWER GARDEN &ndash;&gt;-->
-<!--    <div class="garden-box">-->
-<!--        <p class="garden-lead">Dein Blumengarten</p>-->
-<!--        <p class="garden-sub">Jeden Tag wächst eine neue Blume für dich 🌸</p>-->
+        <div id="streakBadge" class="streak-badge">
+            <span>🌸</span> <span id="streakText">1 Blume gesammelt</span>
+        </div>
 
-<!--        <div id="streakBadge" class="streak-badge">-->
-<!--            <span>🌸</span> <span id="streakText">1 Blume gesammelt</span>-->
-<!--        </div>-->
+        <div class="today-flower-area" id="todayArea">
+            <div class="flower-label" id="todayLabel">Heutige Blume — ziehe sie in die Vase</div>
+            <div class="flower-drag" id="todayFlower" draggable="false">
+                <!-- SVG injected by JS -->
+            </div>
+            <div class="flower-name" id="todayFlowerName"></div>
+        </div>
 
-<!--        <div class="today-flower-area" id="todayArea">-->
-<!--            <div class="flower-label" id="todayLabel">Heutige Blume — ziehe sie in die Vase</div>-->
-<!--            <div class="flower-drag" id="todayFlower" draggable="false">-->
-<!--                &lt;!&ndash; SVG injected by JS &ndash;&gt;-->
-<!--            </div>-->
-<!--            <div class="flower-name" id="todayFlowerName"></div>-->
-<!--        </div>-->
-
-<!--        <div class="vase-section">-->
-<!--            <p class="vase-label">Deine Vase</p>-->
-<!--            <div class="vase-area" id="vaseArea">-->
-<!--                <div class="vase-visual">-->
-<!--                    <div class="vase-flowers" id="vaseFlowers"></div>-->
-<!--                    <div class="vase-glass-front">-->
-<!--                        <svg width="160" height="130" viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg">-->
-<!--                            <path d="M45 30 Q38 60 32 90 Q28 110 40 122 Q60 132 80 132 Q100 132 120 122 Q132 110 128 90 Q122 60 115 30 Z"-->
-<!--                                  fill="rgba(255,255,255,0.16)" stroke="rgba(201,161,90,0.35)" stroke-width="1"/>-->
-<!--                        </svg>-->
-<!--                    </div>-->
-<!--                    <div class="vase-drop-zone" id="vaseDropZone"></div>-->
-<!--                    <div class="vase-svg-wrap">-->
-<!--                        &lt;!&ndash; Vase SVG &ndash;&gt;-->
-<!--                        <svg width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">-->
-<!--                            &lt;!&ndash; Vase body &ndash;&gt;-->
-<!--                            <path d="M45 30 Q38 60 32 90 Q28 110 40 122 Q60 132 80 132 Q100 132 120 122 Q132 110 128 90 Q122 60 115 30 Z"-->
-<!--                                  fill="rgba(255,255,255,0.06)" stroke="rgba(201,161,90,0.5)" stroke-width="1.5"/>-->
-<!--                            &lt;!&ndash; Vase neck &ndash;&gt;-->
-<!--                            <path d="M45 30 Q60 20 80 18 Q100 20 115 30"-->
-<!--                                  fill="none" stroke="rgba(201,161,90,0.5)" stroke-width="1.5"/>-->
-<!--                            &lt;!&ndash; Vase rim &ndash;&gt;-->
-<!--                            <ellipse cx="80" cy="18" rx="36" ry="10"-->
-<!--                                     fill="rgba(255,255,255,0.05)" stroke="rgba(201,161,90,0.5)" stroke-width="1.5"/>-->
-<!--                            &lt;!&ndash; Highlight &ndash;&gt;-->
-<!--                            <path d="M55 50 Q50 70 48 90" stroke="rgba(255,255,255,0.12)" stroke-width="3" stroke-linecap="round"/>-->
-<!--                            &lt;!&ndash; Gold band &ndash;&gt;-->
-<!--                            <path d="M42 75 Q80 68 118 75" stroke="rgba(154,123,90,0.4)" stroke-width="1" fill="none"/>-->
-<!--                        </svg>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--                <div class="vase-hint" id="vaseHint">Noch keine Blumen in der Vase</div>-->
-<!--            </div>-->
-<!--        </div>-->
+        <div class="vase-section">
+            <p class="vase-label">Deine Vase</p>
+            <div class="vase-area" id="vaseArea">
+                <div class="vase-visual">
+                    <div class="vase-flowers" id="vaseFlowers"></div>
+                    <div class="vase-glass-front">
+                        <svg width="160" height="130" viewBox="0 0 160 130" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M45 30 Q38 60 32 90 Q28 110 40 122 Q60 132 80 132 Q100 132 120 122 Q132 110 128 90 Q122 60 115 30 Z"
+                                  fill="rgba(255,255,255,0.16)" stroke="rgba(201,161,90,0.35)" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <div class="vase-drop-zone" id="vaseDropZone"></div>
+                    <div class="vase-svg-wrap">
+                        <!-- Vase SVG -->
+                        <svg width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Vase body -->
+                            <path d="M45 30 Q38 60 32 90 Q28 110 40 122 Q60 132 80 132 Q100 132 120 122 Q132 110 128 90 Q122 60 115 30 Z"
+                                  fill="rgba(255,255,255,0.06)" stroke="rgba(201,161,90,0.5)" stroke-width="1.5"/>
+                            <!-- Vase neck -->
+                            <path d="M45 30 Q60 20 80 18 Q100 20 115 30"
+                                  fill="none" stroke="rgba(201,161,90,0.5)" stroke-width="1.5"/>
+                            <!-- Vase rim -->
+                            <ellipse cx="80" cy="18" rx="36" ry="10"
+                                     fill="rgba(255,255,255,0.05)" stroke="rgba(201,161,90,0.5)" stroke-width="1.5"/>
+                            <!-- Highlight -->
+                            <path d="M55 50 Q50 70 48 90" stroke="rgba(255,255,255,0.12)" stroke-width="3" stroke-linecap="round"/>
+                            <!-- Gold band -->
+                            <path d="M42 75 Q80 68 118 75" stroke="rgba(154,123,90,0.4)" stroke-width="1" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="vase-hint" id="vaseHint">Noch keine Blumen in der Vase</div>
+            </div>
+        </div>
     </div>
 
     <div class="reasons-box">

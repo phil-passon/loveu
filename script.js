@@ -330,24 +330,45 @@ function renderGarden(state) {
             const ft = FLOWER_TYPES[item.idx];
             const div = document.createElement('div');
             div.className = 'vase-flower';
-            div.innerHTML = ft.draw(60);
+// WICHTIG: Hier auf 90 ändern, damit die Blumen groß genug für die Vase sind
+            div.innerHTML = ft.draw(90);
             div.title = ft.name;
 
-            // deterministic "randomness" per flower (seeded by its day) so the
-            // arrangement stays stable across re-renders instead of jumping around.
-            // All stems converge near one point at the vase neck; only the angle
-            // fans the blooms out above the rim, like a real hand-tied bouquet.
             const seed = hashString(item.day + ':' + i);
-            const fanAngle = (i - center) * 9;                 // gentle fan spread
-            const jitterAngle = ((seed % 500) / 100) - 2.5;     // -2.5..+2.5deg wobble
-            const angle = fanAngle + jitterAngle;
-            const baseX = ((seed >> 4) % 13) - 6;               // -6..+6px, keeps bases tight near the neck
-            const lift = ((seed >> 3) % 9) - 4;                 // -4..+4px vertical variance
+
+            // --- NEUER BOUQUET ALGORITHMUS (FÜR DEN VASENBODEN) ---
+
+            const normalizedX = n > 1 ? (i / (n - 1)) * 2 - 1 : 0;
+            const zLayer = ((seed % 73) / 72);
+            const spreadFactor = Math.min(1, n / 15);
+
+            // X-Position: Sehr klein gehalten, da alle am engen Vasenboden starten
+            const MAX_X = 8 * spreadFactor;
+            const jitterX = (((seed >> 2) % 100) / 50 - 1) * 2;
+            const baseX = (normalizedX * MAX_X) + jitterX;
+
+            // Rotation: Stark begrenzt (22 Grad), damit sie gebündelt durch den Hals passen
+            const MAX_ANGLE = 22 * spreadFactor;
+            const jitterAngle = (((seed >> 4) % 100) / 50 - 1) * 3;
+            const angle = (normalizedX * MAX_ANGLE) + jitterAngle;
+
+            // Höhe: Minimaler Lift, damit die Stängel SICHER den Boden berühren!
+            const domeHeight = (1 - Math.pow(Math.abs(normalizedX), 1.5)) * -8 * spreadFactor;
+            const depthHeight = (1 - zLayer) * -5;
+            const jitterHeight = (((seed >> 6) % 100) / 50 - 1) * 3;
+
+            const lift = domeHeight + depthHeight + jitterHeight;
+
+            // Skalierung: Vordere Blumen wirken etwas größer
+            const scale = 0.85 + (zLayer * 0.15);
 
             div.style.setProperty('--rot', angle + 'deg');
             div.style.setProperty('--basex', baseX + 'px');
             div.style.setProperty('--lift', lift + 'px');
-            div.style.zIndex = String(100 - Math.round(Math.abs(fanAngle)));
+            div.style.setProperty('--scale', scale.toFixed(2));
+
+            div.style.zIndex = String(Math.round(zLayer * 100));
+            // --------------------------------
 
             vaseFlowersEl.appendChild(div);
 
