@@ -388,7 +388,7 @@ button{ font-family: 'Playfair Display', serif; cursor: pointer; }
    single point, so their bases converge like a real hand-tied bouquet. */
 .vase-flowers{
     position: absolute;
-    bottom: 12px; /* Setzt den Ursprungspunkt exakt auf den Vasenboden */
+    bottom: 38px; /* Setzt den Ursprungspunkt exakt auf den Vasenboden */
     left: 50%;
     width: 0;
     height: 0;
